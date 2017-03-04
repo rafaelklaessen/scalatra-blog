@@ -36,8 +36,6 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
     val user = Users.get(username)
 
-    println(user)
-
     if (BCrypt.checkpw(password, user.password)) {
       session("username") = username
       Success("Successfully logged in")
