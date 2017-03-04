@@ -60,4 +60,40 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
     Success("Post was successfully deleted")
   }
+
+  post("/update") {
+    val key: String = params.getOrElse("key", halt(400, Error("Please provide a post key")))
+    val fieldsJson: String = params.getOrElse("fields", halt(400, Error("Please provide fields")))
+    var fields: Map[String, String] = Map()
+    
+    try {
+      fields = parse(fieldsJson).extract[Map[String, String]]
+    } catch {
+      case jpe: com.fasterxml.jackson.core.JsonParseException => halt(400, Error("Please provide valid fields"))
+    }
+
+    // Make sure the post exists and the user is logged in
+    if (!session.contains("username")) halt(401, Error("You have to log in before you can update posts"))
+    if (!Posts.postExists(key)) halt(400, Error("Post doesn't exist"))
+
+    val post = Posts.get(key)
+
+    // Make sure current logged in user actually is the post owner
+    if (post.owner != session("username")) halt(400, Error("Post doesn't exist"))
+
+    // Make sure we're getting only valid fields
+    val filteredFields = fields.filterKeys(_ match {
+      case "title" | "content" => true
+      case _ => false
+    })
+
+    val postsRef = FirebaseDatabase.getInstance().getReference("posts")
+    val currentPost = postsRef.child(key)
+    
+    for (field <- filteredFields.keys) {
+      currentPost.child(field).setValue(filteredFields(field))
+    }
+
+    Success("Successfully updated post")
+  }
 }
