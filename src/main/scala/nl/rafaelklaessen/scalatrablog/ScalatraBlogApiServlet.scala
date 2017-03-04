@@ -77,11 +77,18 @@ class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("User successfully registered & logged in")
   }
 
+  post("/user/logout") {
+    // Delete username from session
+    session -= "username"
+
+    Success("Successfully logged out")
+  }
+
   post("/user/getsession") {
     if (session.contains("username")) {
       Success(session("username").toString)
     } else {
-      Error("no session!")
+      Error("No session")
     }
   }
 
