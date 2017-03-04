@@ -21,12 +21,21 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
   post("/create") {
     val title: String = params.getOrElse("title", halt(400, Error("Please provide a title")))
     val content: String = params.getOrElse("content", halt(400, Error("Please provide content")))
-    
+
     if (!session.contains("username")) halt(401, Error("You have to log in before you can create posts"))
 
     val ref = FirebaseDatabase.getInstance()
     val currentUser = ref.getReference("users").child(session("username").toString)
     val currentPost = ref.getReference("posts").push()
+
+    // Add categories if given
+    if (params.contains("categories")) {
+      try {
+        val categories: List = parse(params("categories")).extract[List]
+      } catch {
+        case jpe: com.fasterxml.jackson.core.JsonParseException => halt(400, Error("Invalid categories"))
+      }
+    }
 
     // Update the user's posts field
     currentUser.child("posts").child(currentPost.getKey()).setValue(true)
