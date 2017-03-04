@@ -93,4 +93,29 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
       Error("No session")
     }
   }
+
+  post("/delete") {
+    if (!session.contains("username")) halt(401, Error("You have to log in before you can delete your account"))
+
+    // Get user
+    val user = Users.get(session("username").toString)
+
+    // Remove user from Firebase
+    val ref = FirebaseDatabase.getInstance()
+    val usersRef = ref.getReference("users")
+    val postsRef = ref.getReference("posts")
+    val currentUser = usersRef.child(session("username").toString)
+
+    currentUser.removeValue()
+
+    // Remove posts from Firebase
+    for (post <- user.posts.keys) {
+      postsRef.child(post).removeValue()
+    }
+
+    // End session
+    session -= "username"
+
+    Success("Successfully deleted account :(")
+  }
 }
