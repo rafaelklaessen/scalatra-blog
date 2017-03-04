@@ -12,6 +12,8 @@ import org.mindrot.jbcrypt._
 class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats.withBigDecimal
 
+  private val userRegistrationEnabled = true
+
   before() {
     contentType = formats("json")
   }
@@ -45,6 +47,8 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
   }
 
   post("/register") {
+    if (!userRegistrationEnabled) halt(404, Error("Page not found"))
+
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
     val email: String = params.getOrElse("email", halt(400, Error("Please provide an email")))
     val name: String = params.getOrElse("name", halt(400, Error("Please provide a name")))
