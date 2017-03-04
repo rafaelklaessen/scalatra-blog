@@ -116,4 +116,43 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
     Success("Successfully deleted account :(")
   }
+
+  post("/update") {
+    val fieldsJson: String = params.getOrElse("fields", halt(400, Error("Please provide fields")))
+    var fields: Map[String, String] = Map()
+
+    try {
+      fields = parse(fieldsJson).extract[Map[String, String]]
+    } catch {
+      case jpe: com.fasterxml.jackson.core.JsonParseException => halt(400, Error("Please provide valid fields"))
+    }
+
+    // Make sure the user is logged in
+    if (!session.contains("username")) halt(401, Error("You have to log in before you can edit your profile"))
+
+    val filteredFields = fields.filterKeys(_ match {
+      case "email" | "name" | "password" => true
+      case _ => false
+    })
+
+    // Make sure given email is valid
+    if (fields.contains("email")) {
+      if (!validEmail(fields("email"))) halt(400, Error("Please provide a valid email"))
+    }
+
+    // Transform required fields (which is hashing the password)
+    val finalFields = filteredFields.transform((k, v) => k match {
+      case "password" => BCrypt.hashpw(v, BCrypt.gensalt())
+      case k => v
+    })
+
+    val usersRef = FirebaseDatabase.getInstance().getReference("users")
+    val currentUser = usersRef.child(session("username").toString)
+
+    for (field <- finalFields.keys) {
+      currentUser.child(field).setValue(finalFields(field))
+    }
+
+    Success("Successfully updated user")
+  }
 }
