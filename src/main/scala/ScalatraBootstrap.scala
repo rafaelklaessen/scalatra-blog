@@ -11,7 +11,8 @@ import java.io.FileInputStream
 class ScalatraBootstrap extends LifeCycle {
   override def init(context: ServletContext) {
     context.mount(new ScalatraBlogServlet, "/*")
-    context.mount(new ScalatraBlogApiServlet, "/api/*")
+    context.mount(new UserServlet, "/api/user/*")
+    context.mount(new PostServlet, "/api/posts/*")
   
     val apps = FirebaseApp.getApps()
 

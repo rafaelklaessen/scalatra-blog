@@ -9,7 +9,7 @@ import com.google.firebase.auth._
 import com.google.firebase.database._
 import org.mindrot.jbcrypt._
 
-class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
+class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats.withBigDecimal
 
   before() {
@@ -28,7 +28,7 @@ class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
   case class Error(error_description: String) 
   case class Success(success_message: String)
 
-  post("/user/login") {
+    post("/login") {
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
     val password: String = params.getOrElse("password", halt(400, Error("Please provide a password")))
 
@@ -44,7 +44,7 @@ class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
     }
   }
 
-  post("/user/register") {
+  post("/register") {
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
     val email: String = params.getOrElse("email", halt(400, Error("Please provide an email")))
     val name: String = params.getOrElse("name", halt(400, Error("Please provide a name")))
@@ -77,36 +77,18 @@ class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("User successfully registered & logged in")
   }
 
-  post("/user/logout") {
+  post("/logout") {
     // Delete username from session
     session -= "username"
 
     Success("Successfully logged out")
   }
 
-  post("/user/getsession") {
+  post("/getsession") {
     if (session.contains("username")) {
       Success(session("username").toString)
     } else {
       Error("No session")
     }
   }
-
-  post("/post/put") {
-    val title: String = params.getOrElse("title", halt(400, Error("Please provide a title")))
-    val content: String = params.getOrElse("content", halt(400, Error("Please provide content")))
-    
-    val postReference = FirebaseDatabase.getInstance().getReference("posts")
-
-    postReference.setValue("woopwoop")
-    
-    println(request.isAjax)
-    println(params.get("henkisniethier"))
-    List("json", "example")
-  }
-
-  post("/post/delete") {
-
-  }
-
 }
