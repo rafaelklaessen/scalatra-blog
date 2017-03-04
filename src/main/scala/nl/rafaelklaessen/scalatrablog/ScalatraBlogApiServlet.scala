@@ -7,34 +7,64 @@ import com.google.firebase
 import com.google.firebase._
 import com.google.firebase.auth._
 import com.google.firebase.database._
-import java.io.File
-import java.io.FileInputStream
+import org.mindrot.jbcrypt._
 
 class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats.withBigDecimal
 
   before() {
     contentType = formats("json")
-  
-    val apps = FirebaseApp.getApps()
-
-    if (apps.isEmpty()) {
-      val serviceAccount = new FileInputStream("firebase-auth.json")
-
-      val options = new FirebaseOptions.Builder()
-        .setCredential(FirebaseCredentials.fromCertificate(serviceAccount))
-        .setDatabaseUrl("https://scalatra-blog.firebaseio.com")
-        .build()
-    
-      FirebaseApp.initializeApp(options)
-    }
   }
 
-  post("user/login") {
+  private val emailRegex = """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
 
+  def validEmail(email: String): Boolean = email match{
+    case null                                           => false
+    case e if e.trim.isEmpty                            => false
+    case e if emailRegex.findFirstMatchIn(e).isDefined  => true
+    case _                                              => false
   }
 
   case class Error(error_description: String) 
+  case class Success(success_message: String)
+
+  post("/user/login") {
+
+  }
+
+  post("/user/register") {
+    val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
+    val email: String = params.getOrElse("email", halt(400, Error("Please provide an email")))
+    val name: String = params.getOrElse("name", halt(400, Error("Please provide a name")))
+    val password: String = params.getOrElse("password", halt(400, Error("Please provide a password")))
+
+    if (username.trim().length < 4) {
+      halt(400, Error("Please provide a longer username"))
+    } else if (username.contains(".")) {
+      halt(400, Error("Username may not contain dots"))
+    }
+
+    if (!validEmail(email)) halt(400, Error("Please provide a valid emaill adress"))
+    if (name.trim().length < 4) halt(400, Error("Please provide a valid name"))
+    if (password.trim().length < 4) halt(400, Error("Please provide a longer password"))
+
+    val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+    
+    val usersRef = FirebaseDatabase.getInstance().getReference("users")
+    val currentUser = usersRef.child(username)
+
+    currentUser.child("email").setValue(email)
+    currentUser.child("name").setValue(name)
+    currentUser.child("password").setValue(hashedPassword)
+
+    session("username") = username
+
+    Success("User successfully registered & logged in")
+  }
+
+  post("/user/getsession") {
+    Success(session("username").toString)
+  }
 
   post("/post/put") {
     val title: String = params.getOrElse("title", halt(400, Error("Please provide a title")))
