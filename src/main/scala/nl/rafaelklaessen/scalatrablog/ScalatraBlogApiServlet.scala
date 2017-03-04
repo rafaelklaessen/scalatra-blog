@@ -29,7 +29,19 @@ class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
   case class Success(success_message: String)
 
   post("/user/login") {
+    val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
+    val password: String = params.getOrElse("password", halt(400, Error("Please provide a password")))
 
+    if (!Users.userExists(username)) halt(400, Error("That user doesn't exist"))
+
+    val user = Users.get(username)
+
+    if (BCrypt.checkpw(password, user.password)) {
+      session("username") = username
+      Success("Successfully logged in")
+    } else {
+      halt(400, Error("Wrong password"))
+    }
   }
 
   post("/user/register") {
@@ -48,6 +60,9 @@ class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
     if (name.trim().length < 4) halt(400, Error("Please provide a valid name"))
     if (password.trim().length < 4) halt(400, Error("Please provide a longer password"))
 
+    // Make sure user doesn't exist yet
+    if (Users.userExists(username)) halt(400, Error("Username already taken"))
+
     val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
     
     val usersRef = FirebaseDatabase.getInstance().getReference("users")
@@ -63,7 +78,11 @@ class ScalatraBlogApiServlet extends ScalatraBlogStack with JacksonJsonSupport {
   }
 
   post("/user/getsession") {
-    Success(session("username").toString)
+    if (session.contains("username")) {
+      Success(session("username").toString)
+    } else {
+      Error("no session!")
+    }
   }
 
   post("/post/put") {
