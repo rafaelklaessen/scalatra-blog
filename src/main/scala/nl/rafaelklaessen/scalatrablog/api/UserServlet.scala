@@ -18,7 +18,7 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
   private val emailRegex = """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
 
-  def validEmail(email: String): Boolean = email match{
+  def validEmail(email: String): Boolean = email match {
     case null                                           => false
     case e if e.trim.isEmpty                            => false
     case e if emailRegex.findFirstMatchIn(e).isDefined  => true
@@ -28,13 +28,15 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
   case class Error(error_description: String) 
   case class Success(success_message: String)
 
-    post("/login") {
+  post("/login") {
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
     val password: String = params.getOrElse("password", halt(400, Error("Please provide a password")))
 
     if (!Users.userExists(username)) halt(400, Error("That user doesn't exist"))
 
     val user = Users.get(username)
+
+    println(user)
 
     if (BCrypt.checkpw(password, user.password)) {
       session("username") = username
