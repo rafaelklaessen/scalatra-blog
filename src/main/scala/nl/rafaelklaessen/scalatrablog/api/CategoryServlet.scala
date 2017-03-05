@@ -29,6 +29,12 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
     category
   }
 
+  post("/getall") {
+    val categories = Categories.getAll 
+
+    categories
+  }
+
   post("/create") {
     val name: String = params.getOrElse("name", halt(400, Error("Please provide a category name")))
 
@@ -48,6 +54,8 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
     // Make sure a user is logged in
     if (!session.contains("username")) halt(401, Error("You have to log in before you can delete posts"))
+    // Make sure category exists
+    if (!Categories.categoryExists(key)) halt(400, Error("Category doesn't exist"))
 
     val category = Categories.get(key)
 
@@ -61,5 +69,7 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
     val currentCategory = ref.child(key)
 
     currentCategory.removeValue()
+
+    Success("Successfully deleted category")
   }
 }

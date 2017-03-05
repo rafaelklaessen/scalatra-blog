@@ -23,6 +23,16 @@ object Categories {
     category
   }
 
+  def getAll: Map[String, Category] = {
+    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
+    val jsonUrl = "https://scalatra-blog.firebaseio.com/categories.json?auth=" + credential
+
+    // Get categories JSON and parse it
+    val categories = parse(Source.fromURL(jsonUrl).mkString).extract[Map[String, Category]]
+
+    categories
+  }
+
   def categoryExists(key: String): Boolean = {
     val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
     val jsonUrl = "https://scalatra-blog.firebaseio.com/categories/" + key + ".json?auth=" + credential
