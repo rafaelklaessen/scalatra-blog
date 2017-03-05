@@ -9,9 +9,11 @@ import org.json4s.jackson.JsonMethods._
 object Posts {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats.withBigDecimal
 
+  private val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
+  private val firebaseUrl = "https://scalatra-blog.firebaseio.com"
+
   def get(key: String): Post = {
-    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
-    val jsonUrl = "https://scalatra-blog.firebaseio.com/posts/" + key + ".json?auth=" + credential
+    val jsonUrl = firebaseUrl + "/posts/" + key + ".json?auth=" + credential
   
     // Get post JSON & parse it
     val post = parse(Source.fromURL(jsonUrl).mkString).extract[Post]
@@ -33,8 +35,7 @@ object Posts {
   }
 
   def getAll: Map[String, Post] = {
-    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
-    val jsonUrl = "https://scalatra-blog.firebaseio.com/posts.json?auth=" + credential + "&orderByChild=timestamp"
+    val jsonUrl = firebaseUrl + "/posts.json?auth=" + credential + "&orderByChild=timestamp"
   
     // Get posts JSON & parse it
     val posts = parse(Source.fromURL(jsonUrl).mkString).extract[Map[String, Post]]
@@ -43,8 +44,7 @@ object Posts {
   }
 
   def postExists(key: String): Boolean = {
-    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
-    val jsonUrl = "https://scalatra-blog.firebaseio.com/posts/" + key + ".json?auth=" + credential
+    val jsonUrl = firebaseUrl + "/posts/" + key + ".json?auth=" + credential
 
     // Get post JSON
     val post = Source.fromURL(jsonUrl).mkString

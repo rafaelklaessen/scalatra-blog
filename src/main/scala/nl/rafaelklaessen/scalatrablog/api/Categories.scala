@@ -13,9 +13,11 @@ import com.google.firebase.database._
 object Categories {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats.withBigDecimal
 
+  private val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
+  private val firebaseUrl = "https://scalatra-blog.firebaseio.com"
+
   def get(key: String): Category = {
-    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
-    val jsonUrl = "https://scalatra-blog.firebaseio.com/categories/" + key + ".json?auth=" + credential
+    val jsonUrl = firebaseUrl + "/categories/" + key + ".json?auth=" + credential
   
     // Get category JSON & parse it 
     val category = parse(Source.fromURL(jsonUrl).mkString).extract[Category]
@@ -24,8 +26,7 @@ object Categories {
   }
 
   def getAll: Map[String, Category] = {
-    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
-    val jsonUrl = "https://scalatra-blog.firebaseio.com/categories.json?auth=" + credential
+    val jsonUrl = firebaseUrl + "/categories.json?auth=" + credential
 
     // Get categories JSON and parse it
     val categories = parse(Source.fromURL(jsonUrl).mkString).extract[Map[String, Category]]
@@ -34,8 +35,7 @@ object Categories {
   }
 
   def categoryExists(key: String): Boolean = {
-    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
-    val jsonUrl = "https://scalatra-blog.firebaseio.com/categories/" + key + ".json?auth=" + credential
+    val jsonUrl = firebaseUrl + "/categories/" + key + ".json?auth=" + credential
 
     // Get category JSON 
     val category = Source.fromURL(jsonUrl).mkString

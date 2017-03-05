@@ -15,8 +15,6 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
     contentType = formats("json")
   }
 
-  case class Error(error_description: String)
-  case class Success(success_message: String)
   case class CategorySuccess(success_message: String, key: String)
   
   post("/get") {

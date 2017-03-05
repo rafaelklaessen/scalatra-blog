@@ -15,9 +15,6 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
     contentType = formats("json")
   }
 
-  case class Error(error_description: String) 
-  case class Success(success_message: String)
-
   post("/get") {
     val key: String = params.getOrElse("key", halt(400, Error("Please provide a key")))
 
