@@ -35,9 +35,11 @@ object Categories {
   }
 
   def addPost(categoryKey: String, postKey: String) = {
-    val categoriesReference = FirebaseDatabase.getInstance().getReference("categories")
-    val currentCategory = categoriesReference.child(categoryKey)
+    val ref = FirebaseDatabase.getInstance()
+    val currentPost = ref.getReference("posts").child(postKey)
+    val currentCategory = ref.getReference("categories").child(categoryKey)
 
+    currentPost.child("categories").child(categoryKey).setValue(true)
     currentCategory.child("posts").child(postKey).setValue(true)
   } 
 }

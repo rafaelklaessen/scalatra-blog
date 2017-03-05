@@ -31,7 +31,13 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
     // Add categories if given
     if (params.contains("categories")) {
       try {
-        val categories: List = parse(params("categories")).extract[List]
+        val categories: List[String] = parse(params("categories")).extract[List[String]]
+
+        for (category <- categories) {
+          if (Categories.categoryExists(category)) {
+            Categories.addPost(category, currentPost.getKey())
+          }
+        }
       } catch {
         case jpe: com.fasterxml.jackson.core.JsonParseException => halt(400, Error("Invalid categories"))
       }
