@@ -13,7 +13,8 @@ class ScalatraBootstrap extends LifeCycle {
     context.mount(new ScalatraBlogServlet, "/*")
     context.mount(new UserServlet, "/api/user/*")
     context.mount(new PostServlet, "/api/posts/*")
-  
+    context.mount(new CategoryServlet, "/api/categories/*")
+
     val apps = FirebaseApp.getApps()
 
     if (apps.isEmpty()) {

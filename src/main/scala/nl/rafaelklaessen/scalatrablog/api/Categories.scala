@@ -25,7 +25,7 @@ object Categories {
 
   def categoryExists(key: String): Boolean = {
     val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
-    val jsonUrl = "https://scalatra-blog.firebaseio.com/posts/" + key + ".json?auth=" + credential
+    val jsonUrl = "https://scalatra-blog.firebaseio.com/categories/" + key + ".json?auth=" + credential
 
     // Get category JSON 
     val category = Source.fromURL(jsonUrl).mkString
@@ -41,5 +41,14 @@ object Categories {
 
     currentPost.child("categories").child(categoryKey).setValue(true)
     currentCategory.child("posts").child(postKey).setValue(true)
+  }
+
+  def deletePost(categoryKey: String, postKey: String) = {
+    val ref = FirebaseDatabase.getInstance()
+    val currentPost = ref.getReference("posts").child(postKey)
+    val currentCategory = ref.getReference("categories").child(categoryKey)
+
+    currentPost.child("categories").child(categoryKey).removeValue()
+    currentCategory.child("posts").child(postKey).removeValue()
   } 
 }

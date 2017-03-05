@@ -67,9 +67,14 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
     // Make sure current logged in user actually is the post owner
     if (post.owner != session("username")) halt(400, Error("Post doesn't exist"))
 
+    // Delete post from categories
+    for (category <- post.categories.keys) {
+      Categories.deletePost(category, key)  
+    }
+
     // Delete post from Firebase
-    val ref = FirebaseDatabase.getInstance().getReference("posts")
-    val currentPost = ref.child(key)
+    val ref = FirebaseDatabase.getInstance()
+    val currentPost = ref.getReference("posts").child(key)
 
     currentPost.removeValue()
 
