@@ -72,4 +72,36 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
     Success("Successfully deleted category")
   }
+
+  post("/addpost") {
+    val categoryKey: String = params.getOrElse("categoryKey", halt(400, Error("Please provide a category key")))
+    val postKey: String = params.getOrElse("postKey", halt(400, Error("Please provide a post key")))  
+  
+    // Make sure user is logged in
+    if (!session.contains("username")) halt(401, Error("You have to log in before you can add a post to a category"))
+
+    // Make sure post and category exist
+    if (!Categories.categoryExists(categoryKey)) halt(400, Error("Category doesn't exist"))
+    if (!Posts.postExists(postKey)) halt(400, Error("Post doesn't exist"))
+
+    Categories.addPost(categoryKey, postKey)
+
+    Success("Successfully added post to category")
+  }
+  
+  post("/deletepost") {
+    val categoryKey: String = params.getOrElse("categoryKey", halt(400, Error("Please provide a category key")))
+    val postKey: String = params.getOrElse("postKey", halt(400, Error("Please provide a post key")))
+  
+    // Make sure user is logged in
+    if (!session.contains("username")) halt(401, Error("You have to log in before you can delete a post from a category"))
+
+    // Make sure post and category exist
+    if (!Categories.categoryExists(categoryKey)) halt(400, Error("Category doesn't exist"))
+    if (!Posts.postExists(postKey)) halt(400, Error("Post doesn't exist"))
+  
+    Categories.deletePost(categoryKey, postKey)
+
+    Success("Successfully deleted post from category")
+  }
 }

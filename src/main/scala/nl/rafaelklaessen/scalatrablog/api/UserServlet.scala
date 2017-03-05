@@ -159,4 +159,24 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
     Success("Successfully updated user")
   }
+
+  post("/get") {
+    val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
+
+    if (!Users.userExists(username)) halt(400, Error("User doesn't exist"))
+
+    Users.get(username)
+  }
+
+  post("/getall") {
+    Users.getAll
+  }
+
+  post("/getposts") {
+    val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
+
+    if (!Users.userExists(username)) halt(400, Error("User doesn't exist"))
+
+    Posts.getByUsername(username)
+  }
 }

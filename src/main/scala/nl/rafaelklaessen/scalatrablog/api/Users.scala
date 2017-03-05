@@ -19,6 +19,16 @@ object Users {
     user
   }
 
+  def getAll: Map[String, User] = {
+    val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
+    val jsonUrl = "https://scalatra-blog.firebaseio.com/users.json?auth=" + credential
+  
+    // Get users JSON & parse it
+    val users = parse(Source.fromURL(jsonUrl).mkString).extract[Map[String, User]]
+
+    users
+  }
+
   def userExists(username: String): Boolean = {
     val credential = "EZvAO9apJ0O563x8njmdDnNhOx5ZSRaHvcos4Q8w"
     val jsonUrl = "https://scalatra-blog.firebaseio.com/users/" + username + ".json?auth=" + credential
