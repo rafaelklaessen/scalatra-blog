@@ -27,7 +27,7 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     case _                                              => false
   }
 
-  post("/login") {
+  post("/login/?") {
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
     val password: String = params.getOrElse("password", halt(400, Error("Please provide a password")))
 
@@ -43,7 +43,7 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     }
   }
 
-  post("/register") {
+  post("/register/?") {
     if (!userRegistrationEnabled) halt(404, Error("Page not found"))
 
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
@@ -78,14 +78,14 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("User successfully registered & logged in")
   }
 
-  post("/logout") {
+  post("/logout/?") {
     // Delete username from session
     session -= "username"
 
     Success("Successfully logged out")
   }
 
-  post("/getsession") {
+  post("/getsession/?") {
     if (session.contains("username")) {
       Success(session("username").toString)
     } else {
@@ -93,7 +93,7 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     }
   }
 
-  post("/delete") {
+  post("/delete/?") {
     if (!session.contains("username")) halt(401, Error("You have to log in before you can delete your account"))
 
     // Get user
@@ -118,7 +118,7 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("Successfully deleted account :(")
   }
 
-  post("/update") {
+  post("/update/?") {
     val fieldsJson: String = params.getOrElse("fields", halt(400, Error("Please provide fields")))
     var fields: Map[String, String] = Map()
 
@@ -157,7 +157,7 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("Successfully updated user")
   }
 
-  post("/get") {
+  post("/get/?") {
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
 
     if (!Users.userExists(username)) halt(400, Error("User doesn't exist"))
@@ -165,11 +165,11 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Users.get(username)
   }
 
-  post("/getall") {
+  post("/getall/?") {
     Users.getAll
   }
 
-  post("/getposts") {
+  post("/getposts/?") {
     val username: String = params.getOrElse("username", halt(400, Error("Please provide a username")))
 
     if (!Users.userExists(username)) halt(400, Error("User doesn't exist"))

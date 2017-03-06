@@ -17,7 +17,7 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
   case class CategorySuccess(success_message: String, key: String)
   
-  post("/get") {
+  post("/get/?") {
     val key: String = params.getOrElse("key", halt(400, Error("Please provide a category key")))
 
     if (!Categories.categoryExists(key)) halt(400, Error("Category doesn't exist"))
@@ -27,13 +27,13 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
     category
   }
 
-  post("/getall") {
+  post("/getall/?") {
     val categories = Categories.getAll 
 
     categories
   }
 
-  post("/create") {
+  post("/create/?") {
     val name: String = params.getOrElse("name", halt(400, Error("Please provide a category name")))
 
     // Make sure user is logged in
@@ -47,7 +47,7 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
     CategorySuccess("Successfully created category", currentCategory.getKey())
   }
   
-  post("/delete") {
+  post("/delete/?") {
     val key: String = params.getOrElse("key", halt(400, Error("Please provide a key")))
 
     // Make sure a user is logged in
@@ -71,7 +71,7 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("Successfully deleted category")
   }
 
-  post("/addpost") {
+  post("/addpost/?") {
     val categoryKey: String = params.getOrElse("categoryKey", halt(400, Error("Please provide a category key")))
     val postKey: String = params.getOrElse("postKey", halt(400, Error("Please provide a post key")))  
   
@@ -87,7 +87,7 @@ class CategoryServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("Successfully added post to category")
   }
   
-  post("/deletepost") {
+  post("/deletepost/?") {
     val categoryKey: String = params.getOrElse("categoryKey", halt(400, Error("Please provide a category key")))
     val postKey: String = params.getOrElse("postKey", halt(400, Error("Please provide a post key")))
   

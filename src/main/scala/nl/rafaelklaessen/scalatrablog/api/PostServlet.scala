@@ -15,7 +15,7 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
     contentType = formats("json")
   }
 
-  post("/get") {
+  post("/get/?") {
     val key: String = params.getOrElse("key", halt(400, Error("Please provide a key")))
 
     if (!Posts.postExists(key)) halt(400, Error("Post doesn't exist"))
@@ -23,11 +23,11 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Posts.get(key)
   }
 
-  post("/getall") {
+  post("/getall/?") {
     Posts.getAll
   }
 
-  post("/create") {
+  post("/create/?") {
     val title: String = params.getOrElse("title", halt(400, Error("Please provide a title")))
     val content: String = params.getOrElse("content", halt(400, Error("Please provide content")))
 
@@ -64,7 +64,7 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("Successfully created post")
   }
 
-  post("/delete") {
+  post("/delete/?") {
     val key: String = params.getOrElse("key", halt(400, Error("Please provide a post key")))
 
     // Make sure the post exists and the user is logged in
@@ -90,7 +90,7 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
     Success("Post was successfully deleted")
   }
 
-  post("/update") {
+  post("/update/?") {
     val key: String = params.getOrElse("key", halt(400, Error("Please provide a post key")))
     val fieldsJson: String = params.getOrElse("fields", halt(400, Error("Please provide fields")))
     var fields: Map[String, String] = Map()
