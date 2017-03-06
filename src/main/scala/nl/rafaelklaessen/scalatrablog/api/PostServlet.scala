@@ -33,6 +33,10 @@ class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
 
     if (!session.contains("username")) halt(401, Error("You have to log in before you can create posts"))
 
+    // Make sure title and content aren't too short
+    if (title.length < 5) halt(400, Error("Please provide a longer title"))
+    if (content.length < 5) halt(400, Error("Please provide longer content"))
+
     val ref = FirebaseDatabase.getInstance()
     val currentUser = ref.getReference("users").child(session("username").toString)
     val currentPost = ref.getReference("posts").push()
