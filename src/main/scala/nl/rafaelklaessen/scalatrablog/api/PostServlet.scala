@@ -8,11 +8,15 @@ import com.google.firebase._
 import com.google.firebase.auth._
 import com.google.firebase.database._
 
-class PostServlet extends ScalatraBlogStack with JacksonJsonSupport {
+class PostServlet extends ScalatraBlogStack with JacksonJsonSupport with CorsSupport {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats.withBigDecimal
 
   before() {
     contentType = formats("json")
+  }
+
+  options("/*"){
+    response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
   }
 
   post("/get/?") {

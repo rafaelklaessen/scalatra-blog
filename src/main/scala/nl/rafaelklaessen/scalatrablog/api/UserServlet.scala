@@ -9,7 +9,7 @@ import com.google.firebase.auth._
 import com.google.firebase.database._
 import org.mindrot.jbcrypt._
 
-class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
+class UserServlet extends ScalatraBlogStack with JacksonJsonSupport with CorsSupport {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats.withBigDecimal
   
   private val userRegistrationEnabled = true
@@ -25,6 +25,10 @@ class UserServlet extends ScalatraBlogStack with JacksonJsonSupport {
     case e if e.trim.isEmpty                            => false
     case e if emailRegex.findFirstMatchIn(e).isDefined  => true
     case _                                              => false
+  }
+
+  options("/*"){
+    response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
   }
 
   post("/login/?") {
